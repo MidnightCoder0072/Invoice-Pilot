@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "479283642397",
+    "project_id": "invoicepilot-69e37",
+    "storage_bucket": "invoicepilot-69e37.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479283642397:android:c2e0e18a1a4a05c4fa46f4",
+        "android_client_info": {
+          "package_name": "com.invoicepilot.flutter_projects"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2m7t7MXHUaEdIbFKTTfbg-zfoPzlnp-A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
