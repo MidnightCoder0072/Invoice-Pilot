@@ -3720,7 +3720,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
+  bool _isDeletingAccount = false;
   Future<void> _editProfile() async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -3780,6 +3780,161 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {});
   }
 
+
+  Future<void> _deleteAccount() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Account?'),
+        content: const Text(
+          'This permanently deletes your InvoicePilot account, '
+              'invoices, and clients. This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete Account'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    final passwordController = TextEditingController();
+
+    final password = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Confirm Your Password'),
+        content: TextField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: 'Current Password',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(
+              dialogContext,
+              passwordController.text,
+            ),
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+
+    passwordController.dispose();
+
+    if (password == null || password.isEmpty || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _isDeletingAccount = true;
+    });
+
+    try {
+      final email = user.email;
+
+      if (email == null || email.isEmpty) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Unable to confirm your email. Please contact support.',
+            ),
+          ),
+        );
+        return;
+      }
+
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+
+      final userRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid);
+
+      for (final collectionName in [
+        'invoices',
+        'clients',
+        'settings',
+      ]) {
+        final snapshot = await userRef.collection(collectionName).get();
+
+        for (final doc in snapshot.docs) {
+          await doc.reference.delete();
+        }
+      }
+
+      await userRef.delete();
+      await user.delete();
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const WelcomeScreen(),
+        ),
+            (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      final message = e.code == 'requires-recent-login'
+          ? 'Please sign out, sign back in, and try again.'
+          : 'Account deletion failed: ${e.message ?? e.code}';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Account deletion failed: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDeletingAccount = false;
+        });
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -3815,6 +3970,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: const Text('Edit Profile'),
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 45,
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              onPressed: _isDeletingAccount ? null : _deleteAccount,
+              child: _isDeletingAccount
+                  ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              )
+                  : const Text('Delete Account'),
+            ),
+          ),
+
         ],
       ),
     );
