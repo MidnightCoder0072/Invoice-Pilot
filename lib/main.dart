@@ -187,11 +187,27 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     final email = emailController.text.trim();
-    final password = passwordController.text.trim();
+    final password = passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your email and password.'),
+        ),
+      );
       return;
     }
+
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+        .hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address.'),
+        ),
+      );
+      return;
+    }
+
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -321,22 +337,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController();
 
 
-  Future<void> _register() async {
+    Future<void> _register() async {
     final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
+    final password = passwordController.text;
+    final confirmPassword = confirmPasswordController.text;
     final fullName = fullNameController.text.trim();
 
     if (fullName.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please complete all fields.'),
+        ),
+      );
+      return;
+    }
+
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+        .hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address.'),
+        ),
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password must be at least 6 characters.'),
+        ),
+      );
       return;
     }
 
     if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Passwords do not match.'),
+        ),
+      );
       return;
     }
+
+
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -450,12 +497,28 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController emailController =
   TextEditingController();
 
-  Future<void> _resetPassword() async {
+    Future<void> _resetPassword() async {
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your email address.'),
+        ),
+      );
       return;
     }
+
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+        .hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address.'),
+        ),
+      );
+      return;
+    }
+
 
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(
@@ -2847,8 +2910,51 @@ class _EditClientScreenState extends State<EditClientScreen> {
     final address = addressController.text.trim();
 
     if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a client name.'),
+        ),
+      );
       return;
     }
+
+    if (email.isEmpty && phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please enter an email address or phone number.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (email.isNotEmpty &&
+        !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+            .hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address.'),
+        ),
+      );
+      return;
+    }
+
+    if (phone.isNotEmpty) {
+      final digits = phone.replaceAll(RegExp(r'\D'), '');
+
+      if (!RegExp(r'^[+\d\s().-]+$').hasMatch(phone) ||
+          digits.length < 7 ||
+          digits.length > 15) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter a valid phone number.'),
+          ),
+        );
+        return;
+      }
+    }
+
 
     final user = FirebaseAuth.instance.currentUser;
 
@@ -2988,18 +3094,65 @@ class AddClientScreen extends StatefulWidget {
 class _AddClientScreenState
     extends State<AddClientScreen> {
   final TextEditingController nameController =
-  TextEditingController();
+      TextEditingController();
+  final TextEditingController emailController =
+      TextEditingController();
+  final TextEditingController phoneController =
+      TextEditingController();
+
 
   bool isSaving = false;
 
   @override
   void dispose() {
     nameController.dispose();
+    emailController.dispose();
+    phoneController.dispose();
     super.dispose();
   }
 
   Future<void> _saveClient() async {
     final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final phone = phoneController.text.trim();
+
+    if (email.isEmpty && phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please enter an email address or phone number.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (email.isNotEmpty &&
+        !RegExp(
+          r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+        ).hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address.'),
+        ),
+      );
+      return;
+    }
+
+    if (phone.isNotEmpty) {
+      final digits = phone.replaceAll(RegExp(r'\D'), '');
+
+      if (!RegExp(r'^[+\d\s().-]+$').hasMatch(phone) ||
+          digits.length < 7 ||
+          digits.length > 15) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter a valid phone number.'),
+          ),
+        );
+        return;
+      }
+    }
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -3009,6 +3162,7 @@ class _AddClientScreenState
       );
       return;
     }
+
 
     final user = FirebaseAuth.instance.currentUser;
 
@@ -3028,6 +3182,8 @@ class _AddClientScreenState
     try {
       final client = Client(
         name: name,
+        email: email,
+        phone: phone,
       );
 
       final docRef = await FirebaseFirestore.instance
@@ -3040,11 +3196,12 @@ class _AddClientScreenState
         Client(
           id: docRef.id,
           name: name,
+          email: email,
+          phone: phone,
         ),
       );
 
       if (!mounted) return;
-
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
@@ -3090,14 +3247,40 @@ class _AddClientScreenState
                 const SizedBox(height: 30),
                 const _FormLabel('Client Name'),
                 const SizedBox(height: 8),
+
                 TextField(
                   controller: nameController,
-                  textInputAction: TextInputAction.done,
+                  textInputAction: TextInputAction.next,
                   decoration: _inputDecoration(
                     'Enter client name',
                   ),
                 ),
+                const SizedBox(height: 18),
+
+                const _FormLabel('Email'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  decoration: _inputDecoration(
+                    'Enter email address',
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                const _FormLabel('Phone'),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.done,
+                  decoration: _inputDecoration(
+                    'Enter phone number',
+                  ),
+                ),
                 const SizedBox(height: 25),
+
                 _PrimaryButton(
                   text: isSaving ? 'Saving...' : 'Save Client',
                   onPressed: isSaving ? null : _saveClient,
@@ -3552,21 +3735,46 @@ class SettingsScreen extends StatelessWidget {
             _SettingsTile(
               icon: Icons.logout,
               title: 'Log Out',
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
+                onTap: () async {
+                  final shouldLogout = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text('Log Out?'),
+                      content: const Text(
+                        'Are you sure you want to log out of your account?',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(false);
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(true);
+                          },
+                          child: const Text('Log Out'),
+                        ),
+                      ],
+                    ),
+                  );
 
-                if (!context.mounted) return;
+                  if (shouldLogout != true) return;
 
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const WelcomeScreen(),
-                  ),
-                      (route) => false,
-                );
-              },
-            ),
+                  await FirebaseAuth.instance.signOut();
 
+                  if (!context.mounted) return;
+
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const WelcomeScreen(),
+                    ),
+                        (route) => false,
+                  );
+                },
+              ),
             const SizedBox(height: 20),
 
             const Text(
