@@ -18,19 +18,40 @@ final List<Invoice> invoices = [];
 String selectedFilter = 'All';
 bool isLoading = true;
 
+
 String selectedCurrencyCode = 'GBP';
 
-String get currencySymbol {
-  switch (selectedCurrencyCode) {
+
+String currencySymbolFor(String code) {
+  switch (code) {
     case 'USD':
-      return '\$';
+      return r'$';
     case 'EUR':
-      return '€';
+      return '\u20AC';
+    case 'CAD':
+      return r'CA$';
+    case 'AUD':
+      return r'A$';
+    case 'NZD':
+      return r'NZ$';
+    case 'INR':
+      return '\u20B9';
+    case 'JPY':
+    case 'CNY':
+      return '\u00A5';
+    case 'CHF':
+      return 'CHF ';
+    case 'AED':
+      return '\u062F.\u0625 ';
+    case 'SGD':
+      return r'S$';
     case 'GBP':
     default:
-      return '£';
+      return '\u00A3';
   }
 }
+
+String get currencySymbol => currencySymbolFor(selectedCurrencyCode);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -653,26 +674,43 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   List<Invoice> dashboardInvoices = [];
 
-  double _calculateDashboardRevenue() {
-    double total = 0;
 
-    for (final invoice in dashboardInvoices) {
-      total += invoice.total;
+  String _formatCurrencyTotals(Iterable<Invoice> source) {
+    final totals = <String, double>{};
+
+    for (final invoice in source) {
+      totals.update(
+        invoice.currencyCode,
+            (current) => current + invoice.total,
+        ifAbsent: () => invoice.total,
+      );
     }
 
-    return total;
+    if (totals.isEmpty) {
+      return '${currencySymbolFor(selectedCurrencyCode)}0.00';
+    }
+
+    final entries = totals.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    if (entries.length == 1) {
+      final entry = entries.first;
+      return '${currencySymbolFor(entry.key)}${entry.value.toStringAsFixed(2)}';
+    }
+
+    return entries.map((entry) {
+      return '${entry.key} ${currencySymbolFor(entry.key)}${entry.value.toStringAsFixed(2)}';
+    }).join('\n');
   }
 
-  double _calculateDashboardOutstanding() {
-    double total = 0;
+  String _calculateDashboardRevenue() {
+    return _formatCurrencyTotals(dashboardInvoices);
+  }
 
-    for (final invoice in dashboardInvoices) {
-      if (invoice.status != 'Paid') {
-        total += invoice.total;
-      }
-    }
-
-    return total;
+  String _calculateDashboardOutstanding() {
+    return _formatCurrencyTotals(
+      dashboardInvoices.where((invoice) => invoice.status != 'Paid'),
+    );
   }
 
   Future<void> _loadDashboardInvoices() async {
@@ -701,6 +739,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       dashboardInvoices = loadedInvoices;
     });
   }
+
 
   @override
   void initState() {
@@ -784,16 +823,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Expanded(
                           child: _SummaryCard(
                             title: 'Revenue',
-                            value:
-                            '$currencySymbol${_calculateDashboardRevenue().toStringAsFixed(2)}',
+                              value: _calculateDashboardRevenue(),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: _SummaryCard(
                             title: 'Outstanding',
-                            value:
-                            '$currencySymbol${_calculateDashboardOutstanding().toStringAsFixed(2)}',
+                              value: _calculateDashboardOutstanding(),
                           ),
                         ),
                       ],
@@ -847,7 +884,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           clientName: invoice.client,
                           date: 'Issued: ${invoice.issueDate}',
                           amount:
-                          '$currencySymbol${invoice.total.toStringAsFixed(2)}',
+                          '${currencySymbolFor(invoice.currencyCode)}${invoice.total.toStringAsFixed(2)}',
                           status: invoice.status,
                           statusColor: invoice.status == 'Paid'
                               ? const Color(0xFF12B76A)
@@ -863,10 +900,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       invoiceId: invoice.id,
                                       invoice: invoice,
                                       invoiceNumber: invoice.invoiceNumber,
+                                      currencyCode: invoice.currencyCode,
                                       clientName: invoice.client,
                                       status: invoice.status,
                                       amount:
-                                      '$currencySymbol${invoice.total.toStringAsFixed(2)}',
+                                      '${currencySymbolFor(invoice.currencyCode)}${invoice.total.toStringAsFixed(2)}',
                                       vat: invoice.vat,
                                       items:
                                       invoice.items
@@ -1107,7 +1145,7 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                             date:
                             'Issued: ${invoice.issueDate}',
                             amount:
-                            '$currencySymbol${invoice.total.toStringAsFixed(2)}',
+                            '${currencySymbolFor(invoice.currencyCode)}${invoice.total.toStringAsFixed(2)}',
                             status: invoice.status,
                             statusColor:
                             invoice.status == 'Paid'
@@ -1124,11 +1162,12 @@ class _InvoiceListScreenState extends State<InvoiceListScreen> {
                                         invoiceId: invoice.id,
                                         invoice: invoice,
                                         invoiceNumber: number,
+                                        currencyCode: invoice.currencyCode,
                                         clientName:
                                         invoice.client,
                                         status: invoice.status,
                                         amount:
-                                        '$currencySymbol${invoice.total.toStringAsFixed(2)}',
+                                        '${currencySymbolFor(invoice.currencyCode)}${invoice.total.toStringAsFixed(2)}',
                                         items:
                                         invoice.items.map((item) => item.toMap()).toList(),
                                         issueDate:
@@ -1167,6 +1206,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
   final String? invoiceId;
   final Invoice? invoice;
   final String invoiceNumber;
+  final String currencyCode;
   final String clientName;
   final String status;
   final String amount;
@@ -1180,6 +1220,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
     this.invoiceId,
     this.invoice,
     required this.invoiceNumber,
+    this.currencyCode = 'GBP',
     required this.clientName,
     required this.status,
     required this.amount,
@@ -1393,6 +1434,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                         invoices[i] = Invoice(
                           id: oldInvoice.id,
                           invoiceNumber: oldInvoice.invoiceNumber,
+                          currencyCode: oldInvoice.currencyCode,
                           client: oldInvoice.client,
                           issueDate: oldInvoice.issueDate,
                           dueDate: oldInvoice.dueDate,
@@ -1450,7 +1492,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '$currencySymbol${(displayItems[i]['amount'] as num).toStringAsFixed(2)}',
+                              '${currencySymbolFor(currencyCode)}${(displayItems[i]['amount'] as num).toStringAsFixed(2)}',
                             ),
                           ],
                         ),
@@ -1470,19 +1512,19 @@ class InvoiceDetailsScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _totalRow(
                   'SubTotal',
-                  '$currencySymbol${displaySubtotal.toStringAsFixed(2)}',
+                  '${currencySymbolFor(currencyCode)}${displaySubtotal.toStringAsFixed(2)}',
                 ),
                 const SizedBox(height: 14),
                 _totalRow(
                   'VAT (20%)',
-                  '$currencySymbol${displayVat.toStringAsFixed(2)}',
+                  '${currencySymbolFor(currencyCode)}${displayVat.toStringAsFixed(2)}',
                 ),
                 const SizedBox(height: 12),
                 const Divider(),
                 const SizedBox(height: 8),
                 _totalRow(
                   'Total',
-                  '$currencySymbol${displayTotal.toStringAsFixed(2)}',
+                  '${currencySymbolFor(currencyCode)}${displayTotal.toStringAsFixed(2)}',
                   large: true,
                 ),
                 const SizedBox(height: 15),
@@ -1536,6 +1578,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                           invoices[i] = Invoice(
                             id: oldInvoice.id,
                             invoiceNumber: oldInvoice.invoiceNumber,
+                            currencyCode: oldInvoice.currencyCode,
                             client: oldInvoice.client,
                             issueDate: oldInvoice.issueDate,
                             dueDate: oldInvoice.dueDate,
@@ -1581,7 +1624,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                               (item) => Map<String, dynamic>.from(item),
                         )
                             .toList(),
-                        currencySymbol: currencySymbol,
+                          currencySymbol: currencySymbolFor(currencyCode),
                       );
 
                       await Printing.layoutPdf(
@@ -1612,7 +1655,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                        items: displayItems
                        .map((item) => Map<String, dynamic>.from(item))
                        .toList(),
-                       currencySymbol: currencySymbol,
+                      currencySymbol: currencySymbolFor(currencyCode),
                     );
 
                    await Printing.sharePdf(
@@ -1734,6 +1777,7 @@ class _CreateInvoiceScreenState
     extends State<CreateInvoiceScreen> {
   bool isSaving = false;
   String? selectedClient;
+  late String invoiceCurrencyCode;
   double vatRate = 20.0;
   String issueDate = '';
   String dueDate = '';
@@ -1780,6 +1824,7 @@ class _CreateInvoiceScreenState
     _loadClients();
 
     final invoice = widget.invoice;
+    invoiceCurrencyCode = invoice?.currencyCode ?? selectedCurrencyCode;
 
     if (invoice != null) {
       selectedClient = invoice.client;
@@ -1808,8 +1853,8 @@ class _CreateInvoiceScreenState
           '${defaultDueDate.month.toString().padLeft(2, '0')}/'
           '${defaultDueDate.year}';
 
-      itemDescriptions.add('Logo design');
-      itemAmounts.add(250.00);
+      itemDescriptions.add('');
+      itemAmounts.add(0.00);
     }
   }
 
@@ -1943,6 +1988,7 @@ class _CreateInvoiceScreenState
         final updatedInvoice = Invoice(
           id: oldInvoice.id,
           invoiceNumber: oldInvoice.invoiceNumber,
+          currencyCode: oldInvoice.currencyCode,
           client: selectedClient ?? oldInvoice.client,
           issueDate: issueDate,
           dueDate: dueDate,
@@ -1987,6 +2033,7 @@ class _CreateInvoiceScreenState
 
       final invoice = Invoice(
         invoiceNumber: number,
+        currencyCode: invoiceCurrencyCode,
         client: selectedClient ?? 'No client',
         issueDate: issueDate,
         dueDate: dueDate,
@@ -2009,6 +2056,7 @@ class _CreateInvoiceScreenState
       final savedInvoice = Invoice(
         id: docRef.id,
         invoiceNumber: invoice.invoiceNumber,
+        currencyCode: invoice.currencyCode,
         client: invoice.client,
         issueDate: invoice.issueDate,
         dueDate: invoice.dueDate,
@@ -2298,26 +2346,24 @@ class _CreateInvoiceScreenState
                           ),
                         ),
                         const SizedBox(height: 6),
+
                         _EditableInvoiceInput(
-                          initialText:
-                          '$currencySymbol${itemAmounts[index].toStringAsFixed(2)}',
+                          initialText: itemAmounts[index] == 0.00
+                              ? ''
+                              : itemAmounts[index].toStringAsFixed(2),
+                          prefixText: currencySymbolFor(invoiceCurrencyCode),
                           height: 37,
                           onChanged: (value) {
-                            final parsed =
-                            double.tryParse(
-                              value
-                                  .replaceAll(currencySymbol, '')
-                                  .trim(),
-                            );
+                            final parsed = double.tryParse(value.trim());
 
                             if (parsed != null) {
                               setState(() {
-                                itemAmounts[index] =
-                                    parsed;
+                                itemAmounts[index] = parsed;
                               });
                             }
                           },
                         ),
+
                         if (index <
                             itemDescriptions.length - 1)
                           const SizedBox(height: 16),
@@ -2329,7 +2375,7 @@ class _CreateInvoiceScreenState
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      itemDescriptions.add('New item');
+                      itemDescriptions.add('');
                       itemAmounts.add(0.00);
                     });
                   },
@@ -2344,19 +2390,19 @@ class _CreateInvoiceScreenState
                 const SizedBox(height: 2),
                 _totalRow(
                   'Subtotal',
-                  '$currencySymbol${subtotal.toStringAsFixed(2)}',
+                    '${currencySymbolFor(invoiceCurrencyCode)}${subtotal.toStringAsFixed(2)}',
                 ),
                 const SizedBox(height: 14),
                 _totalRow(
                   'Vat (20%)',
-                  '$currencySymbol${vat.toStringAsFixed(2)}',
+                    '${currencySymbolFor(invoiceCurrencyCode)}${vat.toStringAsFixed(2)}',
                 ),
                 const SizedBox(height: 7),
                 const Divider(),
                 const SizedBox(height: 7),
                 _totalRow(
                   'Total',
-                  '$currencySymbol${total.toStringAsFixed(2)}',
+                  '${currencySymbolFor(invoiceCurrencyCode)}${total.toStringAsFixed(2)}',
                   large: true,
                 ),
                 const SizedBox(height: 13),
@@ -3441,6 +3487,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
       return Invoice(
         id: doc.id,
+        currencyCode: data['currencyCode']?.toString() ?? 'GBP',
         invoiceNumber: data['invoiceNumber']?.toString() ?? '',
         client: data['client']?.toString() ?? 'No client',
         issueDate: data['issueDate']?.toString() ?? '',
@@ -3473,26 +3520,42 @@ class _ReportsScreenState extends State<ReportsScreen> {
     });
   }
 
-  double _calculateRevenue() {
-    double total = 0;
+  String _formatReportTotals(Iterable<Invoice> source) {
+    final totals = <String, double>{};
 
-    for (final invoice in invoices) {
-      total += invoice.total;
+    for (final invoice in source) {
+      totals.update(
+        invoice.currencyCode,
+            (current) => current + invoice.total,
+        ifAbsent: () => invoice.total,
+      );
     }
 
-    return total;
+    if (totals.isEmpty) {
+      return '${currencySymbolFor(selectedCurrencyCode)}0.00';
+    }
+
+    final entries = totals.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    if (entries.length == 1) {
+      final entry = entries.first;
+      return '${currencySymbolFor(entry.key)}${entry.value.toStringAsFixed(2)}';
+    }
+
+    return entries.map((entry) {
+      return '${entry.key} ${currencySymbolFor(entry.key)}${entry.value.toStringAsFixed(2)}';
+    }).join('\n');
   }
 
-  double _calculateOutstanding() {
-    double total = 0;
+  String _calculateRevenue() {
+    return _formatReportTotals(invoices);
+  }
 
-    for (final invoice in invoices) {
-      if (invoice.status != 'Paid') {
-        total += invoice.total;
-      }
-    }
-
-    return total;
+  String _calculateOutstanding() {
+    return _formatReportTotals(
+      invoices.where((invoice) => invoice.status != 'Paid'),
+    );
   }
 
   @override
@@ -3521,12 +3584,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
               const SizedBox(height: 20),
               _SummaryCard(
                 title: 'Revenue',
-                value: '$currencySymbol${_calculateRevenue().toStringAsFixed(2)}',
+                  value: _calculateRevenue(),
               ),
               const SizedBox(height: 12),
               _SummaryCard(
                 title: 'Outstanding',
-                value: '$currencySymbol${_calculateOutstanding().toStringAsFixed(2)}',
+                  value: _calculateOutstanding(),
               ),
               const SizedBox(height: 12),
               _SummaryCard(
@@ -3818,18 +3881,18 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
   String selectedCurrency = 'GBP';
 
   final List<Map<String, String>> currencies = [
-    {
-      'code': 'GBP',
-      'name': 'British Pound (£)',
-    },
-    {
-      'code': 'USD',
-      'name': 'US Dollar (\$)',
-    },
-    {
-      'code': 'EUR',
-      'name': 'Euro (€)',
-    },
+    {'code': 'GBP', 'name': 'British Pound (£)'},
+    {'code': 'USD', 'name': 'US Dollar (\$)'},
+    {'code': 'EUR', 'name': 'Euro (€)'},
+    {'code': 'CAD', 'name': 'Canadian Dollar (CA\$)'},
+    {'code': 'AUD', 'name': 'Australian Dollar (A\$)'},
+    {'code': 'NZD', 'name': 'New Zealand Dollar (NZ\$)'},
+    {'code': 'INR', 'name': 'Indian Rupee (₹)'},
+    {'code': 'JPY', 'name': 'Japanese Yen (¥)'},
+    {'code': 'CNY', 'name': 'Chinese Yuan (¥)'},
+    {'code': 'CHF', 'name': 'Swiss Franc (CHF)'},
+    {'code': 'AED', 'name': 'UAE Dirham (د.إ)'},
+    {'code': 'SGD', 'name': 'Singapore Dollar (S\$)'},
   ];
 
   @override
@@ -4412,7 +4475,10 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
+      padding: const EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.all(
@@ -4721,11 +4787,13 @@ class _InvoiceInput extends StatelessWidget {
 class _EditableInvoiceInput
     extends StatefulWidget {
   final String initialText;
+  final String? prefixText;
   final double height;
   final ValueChanged<String>? onChanged;
 
   const _EditableInvoiceInput({
     required this.initialText,
+    this.prefixText,
     this.height = 44,
     this.onChanged,
   });
@@ -4754,6 +4822,7 @@ class _EditableInvoiceInputState
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -4766,11 +4835,41 @@ class _EditableInvoiceInputState
           fontSize: 13,
           color: Color(0xFF344054),
         ),
-        decoration: _inputDecoration(''),
+        decoration: _inputDecoration('').copyWith(
+          prefixIcon: widget.prefixText == null
+              ? null
+              : Padding(
+            padding: const EdgeInsets.only(
+              left: 12,
+              right: 4,
+            ),
+            child: Align(
+              widthFactor: 1,
+              heightFactor: 1,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                widget.prefixText!,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF344054),
+                ),
+              ),
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(
+            minWidth: 0,
+            minHeight: 0,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 12,
+          ),
+        ),
       ),
     );
   }
 }
+
 
 // ============================================================
 // BOTTOM NAVIGATION

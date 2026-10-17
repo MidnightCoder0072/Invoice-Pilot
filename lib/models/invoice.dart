@@ -5,6 +5,7 @@ import 'invoice_item.dart';
 class Invoice {
   final String? id;
   final String invoiceNumber;
+  final String currencyCode;
   final String client;
   final String issueDate;
   final String dueDate;
@@ -18,6 +19,7 @@ class Invoice {
   Invoice({
     this.id,
     required this.invoiceNumber,
+    this.currencyCode = 'GBP',
     required this.client,
     required this.issueDate,
     required this.dueDate,
@@ -32,6 +34,7 @@ class Invoice {
   Map<String, dynamic> toMap() {
     return {
       'invoiceNumber': invoiceNumber,
+      'currencyCode': currencyCode,
       'client': client,
       'issueDate': issueDate,
       'dueDate': dueDate,
@@ -55,6 +58,7 @@ class Invoice {
     return Invoice(
       id: id,
       invoiceNumber: map['invoiceNumber'] ?? '',
+      currencyCode: map['currencyCode']?.toString() ?? 'GBP',
       client: map['client'] ?? '',
       issueDate: map['issueDate'] ?? '',
       dueDate: map['dueDate'] ?? '',
