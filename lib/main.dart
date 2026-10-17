@@ -2191,7 +2191,9 @@ class _CreateInvoiceScreenState
                   decoration: _boxDecoration(),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      value: selectedClient,
+                      value: clients.any((client) => client.name == selectedClient)
+                          ? selectedClient
+                          : null,
                       isExpanded: true,
                       hint: const Text(
                         'Select Client',
