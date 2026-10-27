@@ -45,3 +45,10 @@ app.*.map.json
 /android/app/release
 
 /android/build/
+
+# Local backups and temporary review files
+/backup/
+/main_head_check.tmp
+/lib/services/invoice_pdf_service_backup.dart
+/release-dependencies-check.txt
+/account_deletion_diff.txt

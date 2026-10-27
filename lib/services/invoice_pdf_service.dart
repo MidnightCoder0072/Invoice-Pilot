@@ -5,8 +5,13 @@ import 'package:pdf/widgets.dart' as pw;
 
 class InvoicePdfService {
   static Future<Uint8List> generateInvoicePdf({
+    required double vatRate,
+    required String taxName,
     required String invoiceNumber,
     required String clientName,
+    String clientEmail = '',
+    String clientPhone = '',
+    String clientAddress = '',
     required String issueDate,
     required String dueDate,
     required String status,
@@ -22,10 +27,10 @@ class InvoicePdfService {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.fromLTRB(
-          40,
-          40,
-          40,
-          40,
+          36,
+          30,
+          36,
+          35,
         ),
         header: (context) {
           return pw.Column(
@@ -36,57 +41,48 @@ class InvoicePdfService {
                 crossAxisAlignment:
                 pw.CrossAxisAlignment.start,
                 children: [
+
                   pw.Column(
-                    crossAxisAlignment:
-                    pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text(
-                        'INVOICEPILOT',
-                        style: pw.TextStyle(
-                          fontSize: 20,
-                          fontWeight: pw.FontWeight.bold,
-                          color: PdfColors.blue,
-                        ),
-                      ),
-                      pw.SizedBox(height: 4),
-                      pw.Text(
-                        'Professional Invoice',
-                        style: pw.TextStyle(
-                          fontSize: 9,
-                          color: PdfColors.grey600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  pw.Column(
-                    crossAxisAlignment:
-                    pw.CrossAxisAlignment.end,
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [
                       pw.Text(
                         'INVOICE',
                         style: pw.TextStyle(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blue900,
                         ),
                       ),
-                      pw.SizedBox(height: 4),
-                      pw.Text(
-                        invoiceNumber,
-                        style: pw.TextStyle(
-                          fontSize: 14,
-                          color: PdfColors.grey700,
+                      pw.SizedBox(height: 6),
+                      pw.Container(
+                        padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: pw.BoxDecoration(
+                          color: PdfColors.blue50,
+                          borderRadius: pw.BorderRadius.circular(4),
+                        ),
+                        child: pw.Text(
+                          invoiceNumber,
+                          style: pw.TextStyle(
+                            fontSize: 13,
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.blue900,
+                          ),
                         ),
                       ),
                     ],
                   ),
+
+                  pw.SizedBox(height: 15),
+                  pw.Divider(
+                    color: PdfColors.grey400,
+                  ),
+                  pw.SizedBox(height: 20),
                 ],
               ),
-              pw.SizedBox(height: 15),
-              pw.Divider(
-                color: PdfColors.grey400,
-              ),
-              pw.SizedBox(height: 20),
-            ],
+            ]
           );
         },
         footer: (context) {
@@ -126,17 +122,52 @@ class InvoicePdfService {
               pw.CrossAxisAlignment.start,
               children: [
                 pw.Expanded(
-                  child: _infoBox(
-                    title: 'BILL TO',
-                    child: pw.Text(
-                      clientName,
-                      style: pw.TextStyle(
-                        fontSize: 15,
-                        fontWeight: pw.FontWeight.bold,
-                      ),
+            child: _infoBox(
+            title: 'BILL TO',
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    clientName,
+                    style: pw.TextStyle(
+                      fontSize: 15,
+                      fontWeight: pw.FontWeight.bold,
                     ),
                   ),
-                ),
+                  if (clientEmail.trim().isNotEmpty) ...[
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      clientEmail,
+                      style: const pw.TextStyle(
+                        fontSize: 10,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ],
+                  if (clientPhone.trim().isNotEmpty) ...[
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      'Phone: $clientPhone',
+                      style: const pw.TextStyle(
+                        fontSize: 10,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ],
+                  if (clientAddress.trim().isNotEmpty) ...[
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      clientAddress,
+                      style: const pw.TextStyle(
+                        fontSize: 10,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
                 pw.SizedBox(width: 15),
                 pw.Expanded(
                   child: _infoBox(
@@ -166,7 +197,7 @@ class InvoicePdfService {
             pw.SizedBox(height: 30),
 
             pw.Text(
-              'ITEMS',
+              'Items / Services',
               style: pw.TextStyle(
                 fontSize: 11,
                 fontWeight: pw.FontWeight.bold,
@@ -193,7 +224,7 @@ class InvoicePdfService {
                 ];
               }).toList(),
               headerStyle: pw.TextStyle(
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: pw.FontWeight.bold,
                 color: PdfColors.white,
               ),
@@ -244,7 +275,9 @@ class InvoicePdfService {
                     ),
                     pw.SizedBox(height: 7),
                     _totalRow(
-                      'VAT',
+                      '$taxName (${vatRate.toStringAsFixed(
+                        vatRate.truncateToDouble() == vatRate ? 0 : 2,
+                      )}%)',
                       vat,
                       currencySymbol: currencySymbol,
                     ),
@@ -267,11 +300,40 @@ class InvoicePdfService {
 
             pw.SizedBox(height: 30),
 
-            pw.Text(
-              'Thank you for your business.',
-              style: pw.TextStyle(
-                fontSize: 10,
-                color: PdfColors.grey600,
+            pw.Container(
+              width: double.infinity,
+              padding: const pw.EdgeInsets.symmetric(
+                vertical: 16,
+                horizontal: 12,
+              ),
+              decoration: const pw.BoxDecoration(
+                color: PdfColors.blue50,
+                borderRadius: pw.BorderRadius.all(
+                  pw.Radius.circular(8),
+                ),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text(
+                    'Thank you for choosing InvoicePilot.',
+                    textAlign: pw.TextAlign.center,
+                    style: pw.TextStyle(
+                      fontSize: 13,
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue800,
+                    ),
+                  ),
+                  pw.SizedBox(height: 5),
+                  pw.Text(
+                    'We appreciate your trust and look forward to working with you again.',
+                    textAlign: pw.TextAlign.center,
+                    style: const pw.TextStyle(
+                      fontSize: 10,
+                      color: PdfColors.grey700,
+                    ),
+                  ),
+                ],
               ),
             ),
           ];
@@ -327,14 +389,14 @@ class InvoicePdfService {
         pw.Text(
           label,
           style: const pw.TextStyle(
-            fontSize: 9,
+            fontSize: 10,
             color: PdfColors.grey600,
           ),
         ),
         pw.Text(
           value,
           style: pw.TextStyle(
-            fontSize: 9,
+            fontSize: 10,
             fontWeight: pw.FontWeight.bold,
           ),
         ),

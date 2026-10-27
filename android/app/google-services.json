@@ -12,7 +12,20 @@
           "package_name": "com.invoicepilot.flutter_projects"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "479283642397-22j4puq9rlptphj2k5vfmdbaph8tj25a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.invoicepilot.flutter_projects",
+            "certificate_hash": "4d0f601f5a39913d8165298a387e5506dedd2e74"
+          }
+        },
+        {
+          "client_id": "479283642397-nu3t15ldg2sr3mfj2oa5vbo78uetdvda.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB2m7t7MXHUaEdIbFKTTfbg-zfoPzlnp-A"
@@ -20,7 +33,41 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479283642397-nu3t15ldg2sr3mfj2oa5vbo78uetdvda.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479283642397:android:96a2cd1ec2da52b7fa46f4",
+        "android_client_info": {
+          "package_name": "invoicepilot.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "479283642397-nu3t15ldg2sr3mfj2oa5vbo78uetdvda.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2m7t7MXHUaEdIbFKTTfbg-zfoPzlnp-A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479283642397-nu3t15ldg2sr3mfj2oa5vbo78uetdvda.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

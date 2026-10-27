@@ -13,6 +13,7 @@ class Invoice {
   final double vat;
   final double total;
   final double vatRate;
+  final String taxName;
   final String status;
   final List<InvoiceItem> items;
 
@@ -26,6 +27,7 @@ class Invoice {
     required this.subtotal,
     required this.vat,
     required this.vatRate,
+    this.taxName = 'VAT',
     required this.total,
     required this.status,
     required this.items,
@@ -41,6 +43,7 @@ class Invoice {
       'subtotal': subtotal,
       'vat': vat,
       'vatRate': vatRate,
+      'taxName': taxName,
       'total': total,
       'status': status,
       'items': items.map((item) => item.toMap()).toList(),
@@ -65,6 +68,7 @@ class Invoice {
       subtotal: (map['subtotal'] as num?)?.toDouble() ?? 0,
       vat: (map['vat'] as num?)?.toDouble() ?? 0,
       vatRate: (map['vatRate'] as num?)?.toDouble() ?? 20.0,
+      taxName: map['taxName']?.toString() ?? 'VAT',
       total: (map['total'] as num?)?.toDouble() ?? 0,
       status: map['status'] ?? 'Pending',
       items: itemList
