@@ -547,7 +547,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn.instance;
 
-      await googleSignIn.initialize();
+      await googleSignIn.initialize(
+        serverClientId:
+        '479283642397-nu3t15ldg2sr3mfj2oa5vbo78uetdvda.apps.googleusercontent.com',
+      );
 
       final GoogleSignInAccount googleUser =
       await googleSignIn.authenticate();
@@ -1484,6 +1487,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   invoiceNumber: invoice.invoiceNumber,
                                   currencyCode: invoice.currencyCode,
                                   clientName: invoice.client,
+                                  clientId: invoice.clientId,
                                   status: invoice.status,
                                   amount:
                                   '${currencySymbolFor(invoice.currencyCode)}${invoice.total.toStringAsFixed(2)}',
@@ -1884,6 +1888,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
   final String invoiceNumber;
   final String currencyCode;
   final String clientName;
+  final String? clientId;
   final String status;
   final String amount;
   final double? vat;
@@ -1898,6 +1903,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
     required this.invoiceNumber,
     this.currencyCode = 'GBP',
     required this.clientName,
+    this.clientId,
     required this.status,
     required this.amount,
     this.vat,
@@ -1909,29 +1915,45 @@ class InvoiceDetailsScreen extends StatelessWidget {
   Future<Map<String, String>> _getClientContactDetails() async {
     final user = FirebaseAuth.instance.currentUser;
 
+    const emptyDetails = {
+      'email': '',
+      'phone': '',
+      'address': '',
+    };
+
     if (user == null) {
-      return {
-        'email': '',
-        'phone': '',
-        'address': '',
-      };
+      return emptyDetails;
     }
 
     try {
-      final snapshot = await FirebaseFirestore.instance
+      final clientsRef = FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .collection('clients')
+          .collection('clients');
+
+      // Prefer the exact client document when an ID is available.
+      if (clientId != null && clientId!.isNotEmpty) {
+        final clientDoc = await clientsRef.doc(clientId!).get();
+
+        if (clientDoc.exists) {
+          final data = clientDoc.data() ?? {};
+
+          return {
+            'email': (data['email'] ?? '').toString(),
+            'phone': (data['phone'] ?? '').toString(),
+            'address': (data['address'] ?? '').toString(),
+          };
+        }
+      }
+
+      // Backward compatibility for older invoices without clientId.
+      final snapshot = await clientsRef
           .where('name', isEqualTo: clientName)
           .limit(1)
           .get();
 
       if (snapshot.docs.isEmpty) {
-        return {
-          'email': '',
-          'phone': '',
-          'address': '',
-        };
+        return emptyDetails;
       }
 
       final data = snapshot.docs.first.data();
@@ -1944,12 +1966,78 @@ class InvoiceDetailsScreen extends StatelessWidget {
     } catch (e, stackTrace) {
       debugPrint('Could not load client contact details: $e');
       debugPrintStack(stackTrace: stackTrace);
+      return emptyDetails;
+    }
+  }
+
+  Future<Map<String, String>> _getBusinessProfile() async {
+    const emptyProfile = {
+      'businessName': '',
+      'email': '',
+      'phone': '',
+      'address': '',
+      'website': '',
+      'taxNumber': '',
+    };
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return emptyProfile;
+
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final rawProfile = userDoc.data()?['businessProfile'];
+      if (rawProfile is! Map) return emptyProfile;
 
       return {
-        'email': '',
-        'phone': '',
-        'address': '',
+        for (final key in emptyProfile.keys)
+          key: (rawProfile[key] ?? '').toString(),
       };
+    } catch (e, stackTrace) {
+      debugPrint('Could not load business profile for PDF: $e');
+      debugPrintStack(stackTrace: stackTrace);
+      return emptyProfile;
+    }
+  }
+
+  Future<Map<String, String>> _getPaymentSettings() async {
+    const emptySettings = <String, String>{
+      'stripePaymentLink': '',
+      'paypalPaymentLink': '',
+      'customPaymentMethodName': '',
+      'customPaymentLink': '',
+      'bankAccountName': '',
+      'bankName': '',
+      'bankAccountNumber': '',
+      'bankRouting': '',
+      'bankPaymentInstructions': '',
+    };
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return emptySettings;
+
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      final rawSettings = userDoc.data()?['paymentSettings'];
+
+      if (rawSettings is! Map<String, dynamic>) {
+        return emptySettings;
+      }
+
+      return {
+        for (final key in emptySettings.keys)
+          key: rawSettings[key]?.toString() ?? '',
+      };
+    } catch (e, stackTrace) {
+      debugPrint('Failed to load payment settings: $e');
+      debugPrintStack(stackTrace: stackTrace);
+      return emptySettings;
     }
   }
 
@@ -2354,15 +2442,35 @@ class InvoiceDetailsScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () async {
                       final contactDetails = await _getClientContactDetails();
+                      final businessProfile = await _getBusinessProfile();
+                      final paymentSettings = await _getPaymentSettings();
 
                       if (!context.mounted) return;
 
                       final pdfData = await InvoicePdfService.generateInvoicePdf(
+                        stripePaymentLink: paymentSettings['stripePaymentLink'] ?? '',
+                        paypalPaymentLink: paymentSettings['paypalPaymentLink'] ?? '',
+                        customPaymentMethodName:
+                        paymentSettings['customPaymentMethodName'] ?? '',
+                        customPaymentLink:
+                        paymentSettings['customPaymentLink'] ?? '',
+                        bankAccountName: paymentSettings['bankAccountName'] ?? '',
+                        bankName: paymentSettings['bankName'] ?? '',
+                        bankAccountNumber: paymentSettings['bankAccountNumber'] ?? '',
+                        bankRouting: paymentSettings['bankRouting'] ?? '',
+                        bankPaymentInstructions:
+                        paymentSettings['bankPaymentInstructions'] ?? '',
                         invoiceNumber: invoiceNumber,
                         clientName: clientName,
                         clientEmail: contactDetails['email']!,
                         clientPhone: contactDetails['phone']!,
                         clientAddress: contactDetails['address']!,
+                        businessName: businessProfile['businessName']!,
+                        businessEmail: businessProfile['email']!,
+                        businessPhone: businessProfile['phone']!,
+                        businessAddress: businessProfile['address']!,
+                        businessWebsite: businessProfile['website']!,
+                        businessTaxNumber: businessProfile['taxNumber']!,
                         issueDate: issueDate,
                         dueDate: dueDate,
                         status: status,
@@ -2394,10 +2502,30 @@ class InvoiceDetailsScreen extends StatelessWidget {
                   height: 45,
                   child: OutlinedButton(
                     onPressed: () async {
+                      final businessProfile = await _getBusinessProfile();
+                      final paymentSettings = await _getPaymentSettings();
                       final pdfData =
                       await InvoicePdfService.generateInvoicePdf(
+                        stripePaymentLink: paymentSettings['stripePaymentLink'] ?? '',
+                        paypalPaymentLink: paymentSettings['paypalPaymentLink'] ?? '',
+                        customPaymentMethodName:
+                        paymentSettings['customPaymentMethodName'] ?? '',
+                        customPaymentLink:
+                        paymentSettings['customPaymentLink'] ?? '',
+                        bankAccountName: paymentSettings['bankAccountName'] ?? '',
+                        bankName: paymentSettings['bankName'] ?? '',
+                        bankAccountNumber: paymentSettings['bankAccountNumber'] ?? '',
+                        bankRouting: paymentSettings['bankRouting'] ?? '',
+                        bankPaymentInstructions:
+                        paymentSettings['bankPaymentInstructions'] ?? '',
                         invoiceNumber: invoiceNumber,
                         clientName: clientName,
+                        businessName: businessProfile['businessName']!,
+                        businessEmail: businessProfile['email']!,
+                        businessPhone: businessProfile['phone']!,
+                        businessAddress: businessProfile['address']!,
+                        businessWebsite: businessProfile['website']!,
+                        businessTaxNumber: businessProfile['taxNumber']!,
                         issueDate: issueDate,
                         dueDate: dueDate,
                         status: status,
@@ -2532,6 +2660,7 @@ class _CreateInvoiceScreenState
   bool isSaving = false;
   bool showValidationErrors = false;
   String? selectedClient;
+  String? selectedClientId;
   late String invoiceCurrencyCode;
   double vatRate = 20.0;
   String taxName = 'VAT';
@@ -2661,6 +2790,7 @@ class _CreateInvoiceScreenState
 
     if (invoice != null) {
       selectedClient = invoice.client;
+      selectedClientId = invoice.clientId;
       issueDate = invoice.issueDate;
       dueDate = invoice.dueDate;
       vatRate = invoice.vatRate;
@@ -2851,6 +2981,7 @@ class _CreateInvoiceScreenState
           invoiceNumber: oldInvoice.invoiceNumber,
           currencyCode: oldInvoice.currencyCode,
           client: selectedClient ?? oldInvoice.client,
+          clientId: selectedClientId ?? oldInvoice.clientId,
           issueDate: issueDate,
           dueDate: dueDate,
           subtotal: subtotal,
@@ -2907,6 +3038,7 @@ class _CreateInvoiceScreenState
         invoiceNumber: number,
         currencyCode: invoiceCurrencyCode,
         client: selectedClient ?? 'No client',
+        clientId: selectedClientId,
         issueDate: issueDate,
         dueDate: dueDate,
         subtotal: subtotal,
@@ -2930,6 +3062,7 @@ class _CreateInvoiceScreenState
         id: docRef.id,
         invoiceNumber: invoice.invoiceNumber,
         currencyCode: invoice.currencyCode,
+        clientId: invoice.clientId,
         client: invoice.client,
         issueDate: invoice.issueDate,
         dueDate: invoice.dueDate,
@@ -3073,57 +3206,64 @@ class _CreateInvoiceScreenState
                 const SizedBox(height: 25),
                 const _FormLabel('Client'),
                 const SizedBox(height: 7),
-
                 Container(
                   height: 44,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 17,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 17),
                   decoration: _boxDecoration(),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: (() {
-                        final names = clients.map((client) => client.name).toSet();
-                        if (widget.invoice != null &&
-                            selectedClient != null &&
-                            selectedClient!.isNotEmpty) {
-                          names.add(selectedClient!);
+                        final validIds = clients
+                            .map((client) => client.id)
+                            .whereType<String>()
+                            .toSet();
+
+                        if (selectedClientId != null &&
+                            validIds.contains(selectedClientId)) {
+                          return selectedClientId;
                         }
-                        return names.contains(selectedClient) ? selectedClient : null;
+
+                        return null;
                       })(),
                       isExpanded: true,
                       hint: const Text('Select a client'),
-                      items: (() {
-                        final names = clients.map((client) => client.name).toSet().toList();
-                        final originalClient = widget.invoice?.client;
-                        if (originalClient != null &&
-                            originalClient.isNotEmpty &&
-                            !names.contains(originalClient)) {
-                          names.insert(0, originalClient);
-                        }
-                        return names.map((name) {
-                          final isDeletedOriginal =
-                              widget.invoice != null &&
-                                  name == widget.invoice!.client &&
-                                  !clients.any((client) => client.name == name);
-                          return DropdownMenuItem<String>(
-                            value: name,
-                            child: Text(
-                              isDeletedOriginal ? '$name (deleted client)' : name,
-                            ),
-                          );
-                        }).toList();
-                      })(),
+                      items: [
+                        ...clients
+                            .where((client) => client.id != null && client.id!.isNotEmpty)
+                            .map(
+                              (client) => DropdownMenuItem<String>(
+                            value: client.id!,
+                            child: Text(client.name),
+                          ),
+                        ),
+                        if (widget.invoice != null &&
+                            (selectedClientId == null ||
+                                !clients.any((client) => client.id == selectedClientId)))
+                          DropdownMenuItem<String>(
+                            value: '__deleted_original_client__',
+                            child: Text('${widget.invoice!.client} (deleted client)'),
+                          ),
+                      ],
                       onChanged: (value) {
                         if (value == null) return;
+
                         setState(() {
-                          selectedClient = value;
+                          if (value == '__deleted_original_client__') {
+                            selectedClient = widget.invoice!.client;
+                            selectedClientId = widget.invoice!.clientId;
+                          } else {
+                            final client = clients.firstWhere(
+                                  (client) => client.id == value,
+                            );
+
+                            selectedClient = client.name;
+                            selectedClientId = client.id;
+                          }
                         });
                       },
                     ),
                   ),
                 ),
-
 
                 if (showValidationErrors &&
                     (selectedClient == null || selectedClient!.isEmpty))
@@ -4450,13 +4590,43 @@ class _AddClientScreenState
 
     void showMessage(String message) {
       ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
+        ..clearSnackBars()
         ..showSnackBar(
           SnackBar(
-            content: Text(message),
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  color: Color(0xFFC62828),
+                  size: 16,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFFFFEBEE),
             behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(12),
+            margin: const EdgeInsets.fromLTRB(20, 0, 20, 84),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 10,
+            ),
             duration: const Duration(seconds: 3),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
           ),
         );
     }
@@ -5214,6 +5384,20 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 8),
 
             _SettingsTile(
+              icon: Icons.payment_outlined,
+              title: 'Payment Settings',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PaymentSettingsScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+
+            _SettingsTile(
               icon: Icons.public,
               title: 'Business Location',
               onTap: () {
@@ -5233,6 +5417,349 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
+
+class PaymentSettingsScreen extends StatefulWidget {
+  const PaymentSettingsScreen({super.key});
+
+  @override
+  State<PaymentSettingsScreen> createState() =>
+      _PaymentSettingsScreenState();
+}
+
+class _PaymentSettingsScreenState
+    extends State<PaymentSettingsScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController stripePaymentLinkController =
+  TextEditingController();
+  final TextEditingController customPaymentMethodNameController =
+  TextEditingController();
+  final TextEditingController customPaymentLinkController =
+  TextEditingController();
+  final TextEditingController paypalPaymentLinkController =
+  TextEditingController();
+  final TextEditingController bankAccountNameController =
+  TextEditingController();
+  final TextEditingController bankNameController =
+  TextEditingController();
+  final TextEditingController bankAccountNumberController =
+  TextEditingController();
+  final TextEditingController bankRoutingController =
+  TextEditingController();
+  final TextEditingController bankPaymentInstructionsController =
+  TextEditingController();
+
+  bool isLoading = true;
+  bool isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPaymentSettings();
+  }
+
+  @override
+  void dispose() {
+    stripePaymentLinkController.dispose();
+    paypalPaymentLinkController.dispose();
+    customPaymentMethodNameController.dispose();
+    customPaymentLinkController.dispose();
+    bankAccountNameController.dispose();
+    bankNameController.dispose();
+    bankAccountNumberController.dispose();
+    bankRoutingController.dispose();
+    bankPaymentInstructionsController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadPaymentSettings() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      final settings =
+      doc.data()?['paymentSettings'] as Map<String, dynamic>?;
+
+      if (settings != null) {
+        stripePaymentLinkController.text =
+            settings['stripePaymentLink'] as String? ?? '';
+        paypalPaymentLinkController.text =
+            settings['paypalPaymentLink'] as String? ?? '';
+        customPaymentMethodNameController.text =
+            settings['customPaymentMethodName'] as String? ?? '';
+        customPaymentLinkController.text =
+            settings['customPaymentLink'] as String? ?? '';
+        bankAccountNameController.text =
+            settings['bankAccountName'] as String? ?? '';
+        bankNameController.text =
+            settings['bankName'] as String? ?? '';
+        bankAccountNumberController.text =
+            settings['bankAccountNumber'] as String? ?? '';
+        bankRoutingController.text =
+            settings['bankRouting'] as String? ?? '';
+        bankPaymentInstructionsController.text =
+            settings['bankPaymentInstructions'] as String? ?? '';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not load payment settings.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+
+  }
+
+  Future<void> _savePaymentSettings() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please sign in to save payment settings.'),
+            ),
+          );
+        }
+        return;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
+        'paymentSettings': {
+          'stripePaymentLink': stripePaymentLinkController.text.trim(),
+          'paypalPaymentLink': paypalPaymentLinkController.text.trim(),
+          'customPaymentMethodName':
+          customPaymentMethodNameController.text.trim(),
+          'customPaymentLink': customPaymentLinkController.text.trim(),
+          'bankAccountName': bankAccountNameController.text.trim(),
+          'bankName': bankNameController.text.trim(),
+          'bankAccountNumber': bankAccountNumberController.text.trim(),
+          'bankRouting': bankRoutingController.text.trim(),
+          'bankPaymentInstructions':
+          bankPaymentInstructionsController.text.trim(),
+        },
+      }, SetOptions(merge: true));
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF2E7D32),
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Payment settings saved successfully.',
+                  style: TextStyle(
+                    color: Color(0xFF2E7D32),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFFE8F5E9),
+          elevation: 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(
+              color: Color(0xFFC8E6C9),
+            ),
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      // Return to the previous screen after a successful save.
+      Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not save payment settings.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
+  }
+
+  Widget _buildPaymentField({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    String? hint,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 16),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Payment Settings'),
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            const Text(
+              'Configure how your customers can pay you. '
+                  'Only configured payment options will be shown '
+                  'on invoices.',
+            ),
+            _buildSectionTitle('Online Payment Methods'),
+            _buildPaymentField(
+              label: 'Stripe Payment Link',
+              controller: stripePaymentLinkController,
+              icon: Icons.credit_card_outlined,
+              hint: 'https://buy.stripe.com/...',
+              keyboardType: TextInputType.url,
+            ),
+            _buildPaymentField(
+              label: 'PayPal Payment Link',
+              controller: paypalPaymentLinkController,
+              icon: Icons.credit_card_outlined,
+              hint: 'https://paypal.me/...',
+              keyboardType: TextInputType.url,
+            ),
+            _buildSectionTitle('Other Payment Methods'),
+            _buildPaymentField(
+              label: 'Payment Method Name',
+              controller: customPaymentMethodNameController,
+              icon: Icons.payments_outlined,
+              hint: 'e.g. UPI, Pix, or another provider',
+            ),
+            _buildPaymentField(
+              label: 'Custom Payment Link',
+              controller: customPaymentLinkController,
+              icon: Icons.link,
+              hint: 'https://...',
+              keyboardType: TextInputType.url,
+            ),
+            _buildSectionTitle('Bank Transfer Details'),
+            _buildPaymentField(
+              label: 'Account Holder Name',
+              controller: bankAccountNameController,
+              icon: Icons.person_outline,
+            ),
+            _buildPaymentField(
+              label: 'Bank Name',
+              controller: bankNameController,
+              icon: Icons.account_balance_outlined,
+            ),
+            _buildPaymentField(
+              label: 'Account Number / IBAN',
+              controller: bankAccountNumberController,
+              icon: Icons.tag,
+            ),
+            _buildPaymentField(
+              label: 'Sort Code / BIC / SWIFT',
+              controller: bankRoutingController,
+              icon: Icons.account_balance_outlined,
+            ),
+            _buildPaymentField(
+              label: 'Payment Instructions',
+              controller: bankPaymentInstructionsController,
+              icon: Icons.notes,
+              maxLines: 3,
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed:
+                isSaving ? null : _savePaymentSettings,
+                child: isSaving
+                    ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                )
+                    : const Text('Save Payment Settings'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class CurrencyScreen extends StatefulWidget {
   const CurrencyScreen({super.key});
 
@@ -5243,7 +5770,7 @@ class CurrencyScreen extends StatefulWidget {
 class _CurrencyScreenState extends State<CurrencyScreen> {
 
   String selectedCurrency = 'GBP';
-
+  String currencySearchQuery = '';
 
   final List<Map<String, String>> currencies = [
     {'code': 'AED', 'name': 'UAE Dirham'},
@@ -5440,6 +5967,20 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredCurrencies = [...currencies]
+      ..sort((a, b) => a['name']!.compareTo(b['name']!));
+
+    final results = filteredCurrencies.where((currency) {
+      final name = currency['name']!.toLowerCase();
+      final code = currency['code']!.toLowerCase();
+      final symbol =
+      currencySymbolFor(currency['code']!).toLowerCase();
+
+      return name.contains(currencySearchQuery) ||
+          code.contains(currencySearchQuery) ||
+          symbol.contains(currencySearchQuery);
+    }).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
@@ -5461,34 +6002,87 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
 
           const SizedBox(height: 10),
 
-          ...([...currencies]
-            ..sort((a, b) => a['name']!.compareTo(b['name']!)))
-              .map((currency) {
-            final isSelected =
-                selectedCurrency == currency['code'];
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.grey,
-                ),
-              ),
-              child: ListTile(
-                title: Text(
-                  '${currency['name']} (${currency['code']}) - ${currencySymbolFor(currency['code']!)}',
-                ),
-                trailing: isSelected
-                    ? const Icon(Icons.check)
-                    : null,
-                onTap: () {
-                  _selectCurrency(currency['code']!);
+          TextField(
+            onChanged: (value) {
+              setState(() {
+                currencySearchQuery = value.trim().toLowerCase();
+              });
+            },
+            decoration: InputDecoration(
+              hintText: 'Search currencies...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: currencySearchQuery.isNotEmpty
+                  ? IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  setState(() {
+                    currencySearchQuery = '';
+                  });
                 },
+              )
+                  : null,
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding:
+              const EdgeInsets.symmetric(vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.grey),
               ),
-            );
-          }),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.grey),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.blue),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          if (results.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 30),
+              child: Center(
+                child: Text(
+                  'No currencies found',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...results.map((currency) {
+              final isSelected =
+                  selectedCurrency == currency['code'];
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey,
+                  ),
+                ),
+                child: ListTile(
+                  title: Text(
+                    '${currency['name']} (${currency['code']}) - ${currencySymbolFor(
+                        currency['code']!)}',
+                  ),
+                  trailing: isSelected
+                      ? const Icon(Icons.check)
+                      : null,
+                  onTap: () {
+                    _selectCurrency(currency['code']!);
+                  },
+                ),
+              );
+            }),
         ],
       ),
     );
@@ -7674,6 +8268,36 @@ class _BusinessProfileScreenState
                 controller: taxNumberController,
                 icon: Icons.receipt_long_outlined,
               ),
+              const SizedBox(height: 24),
+
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.payment_outlined,
+                    color: Colors.blue,
+                  ),
+                  title: const Text(
+                    'Payment Settings',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'Manage Stripe, PayPal and bank transfer details.',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PaymentSettingsScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
 
               const SizedBox(height: 8),
 

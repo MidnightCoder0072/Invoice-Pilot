@@ -7,6 +7,7 @@ class Invoice {
   final String invoiceNumber;
   final String currencyCode;
   final String client;
+  final String? clientId;
   final String issueDate;
   final String dueDate;
   final double subtotal;
@@ -22,6 +23,7 @@ class Invoice {
     required this.invoiceNumber,
     this.currencyCode = 'GBP',
     required this.client,
+    this.clientId,
     required this.issueDate,
     required this.dueDate,
     required this.subtotal,
@@ -38,6 +40,7 @@ class Invoice {
       'invoiceNumber': invoiceNumber,
       'currencyCode': currencyCode,
       'client': client,
+      'clientId': clientId,
       'issueDate': issueDate,
       'dueDate': dueDate,
       'subtotal': subtotal,
@@ -63,6 +66,7 @@ class Invoice {
       invoiceNumber: map['invoiceNumber'] ?? '',
       currencyCode: map['currencyCode']?.toString() ?? 'GBP',
       client: map['client'] ?? '',
+      clientId: map['clientId']?.toString(),
       issueDate: map['issueDate'] ?? '',
       dueDate: map['dueDate'] ?? '',
       subtotal: (map['subtotal'] as num?)?.toDouble() ?? 0,
