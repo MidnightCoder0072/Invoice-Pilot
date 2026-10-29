@@ -22,6 +22,22 @@
           }
         },
         {
+          "client_id": "479283642397-luc2vc6l0d38sajhsm0kq74um6l0d4ap.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.invoicepilot.flutter_projects",
+            "certificate_hash": "01e8c2b0a17fef89a34649f8bb719b4e1de6cca5"
+          }
+        },
+        {
+          "client_id": "479283642397-q38j3c7fsmss101408okuv2da8vi8pn3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.invoicepilot.flutter_projects",
+            "certificate_hash": "d32fa275ce8b29ba4109281bd856f30c90090cc0"
+          }
+        },
+        {
           "client_id": "479283642397-nu3t15ldg2sr3mfj2oa5vbo78uetdvda.apps.googleusercontent.com",
           "client_type": 3
         }

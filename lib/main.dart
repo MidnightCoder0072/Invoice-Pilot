@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -24,21 +24,21 @@ String selectedCurrencyCode = 'GBP';
 
 String currencySymbolFor(String code) {
   switch (code) {
-    case 'AED': return 'د.إ';
-    case 'AFN': return '؋';
+    case 'AED': return 'Ø¯.Ø¥';
+    case 'AFN': return 'Ø‹';
     case 'ALL': return 'L';
-    case 'AMD': return '֏';
-    case 'ANG': return 'ƒ';
+    case 'AMD': return 'Ö';
+    case 'ANG': return 'Æ’';
     case 'AOA': return 'Kz';
     case 'ARS': return r'$';
     case 'AUD': return r'A$';
-    case 'AWG': return 'ƒ';
-    case 'AZN': return '₼';
+    case 'AWG': return 'Æ’';
+    case 'AZN': return 'â‚¼';
     case 'BAM': return 'KM';
     case 'BBD': return r'Bds$';
-    case 'BDT': return '৳';
-    case 'BGN': return 'лв';
-    case 'BHD': return 'د.ب';
+    case 'BDT': return 'à§³';
+    case 'BGN': return 'Ð»Ð²';
+    case 'BHD': return 'Ø¯.Ø¨';
     case 'BIF': return 'FBu';
     case 'BMD': return r'BD$';
     case 'BND': return r'B$';
@@ -53,26 +53,26 @@ String currencySymbolFor(String code) {
     case 'CDF': return 'FC';
     case 'CHF': return 'CHF';
     case 'CLP': return r'CL$';
-    case 'CNY': return '¥';
+    case 'CNY': return 'Â¥';
     case 'COP': return r'COL$';
-    case 'CRC': return '₡';
-    case 'CUP': return '₱';
+    case 'CRC': return 'â‚¡';
+    case 'CUP': return 'â‚±';
     case 'CVE': return r'CV$';
-    case 'CZK': return 'Kč';
+    case 'CZK': return 'KÄ';
     case 'DJF': return 'Fdj';
     case 'DKK': return 'kr';
     case 'DOP': return r'RD$';
-    case 'DZD': return 'دج';
-    case 'EGP': return 'E£';
+    case 'DZD': return 'Ø¯Ø¬';
+    case 'EGP': return 'EÂ£';
     case 'ERN': return 'Nfk';
     case 'ETB': return 'Br';
-    case 'EUR': return '€';
+    case 'EUR': return 'â‚¬';
     case 'FJD': return r'FJ$';
-    case 'FKP': return '£';
-    case 'GBP': return '£';
-    case 'GEL': return '₾';
-    case 'GHS': return '₵';
-    case 'GIP': return '£';
+    case 'FKP': return 'Â£';
+    case 'GBP': return 'Â£';
+    case 'GEL': return 'â‚¾';
+    case 'GHS': return 'â‚µ';
+    case 'GIP': return 'Â£';
     case 'GMD': return 'D';
     case 'GNF': return 'FG';
     case 'GTQ': return 'Q';
@@ -82,99 +82,99 @@ String currencySymbolFor(String code) {
     case 'HTG': return 'G';
     case 'HUF': return 'Ft';
     case 'IDR': return 'Rp';
-    case 'ILS': return '₪';
-    case 'INR': return '₹';
-    case 'IQD': return 'ع.د';
-    case 'IRR': return '﷼';
+    case 'ILS': return 'â‚ª';
+    case 'INR': return 'â‚¹';
+    case 'IQD': return 'Ø¹.Ø¯';
+    case 'IRR': return 'ï·¼';
     case 'ISK': return 'kr';
     case 'JMD': return r'J$';
-    case 'JOD': return 'د.ا';
-    case 'JPY': return '¥';
+    case 'JOD': return 'Ø¯.Ø§';
+    case 'JPY': return 'Â¥';
     case 'KES': return 'KSh';
-    case 'KGS': return 'сом';
-    case 'KHR': return '៛';
+    case 'KGS': return 'ÑÐ¾Ð¼';
+    case 'KHR': return 'áŸ›';
     case 'KMF': return 'CF';
-    case 'KPW': return '₩';
-    case 'KRW': return '₩';
-    case 'KWD': return 'د.ك';
+    case 'KPW': return 'â‚©';
+    case 'KRW': return 'â‚©';
+    case 'KWD': return 'Ø¯.Ùƒ';
     case 'KYD': return r'CI$';
-    case 'KZT': return '₸';
-    case 'LAK': return '₭';
-    case 'LBP': return 'ل.ل';
-    case 'LKR': return 'රු';
+    case 'KZT': return 'â‚¸';
+    case 'LAK': return 'â‚­';
+    case 'LBP': return 'Ù„.Ù„';
+    case 'LKR': return 'à¶»à·”';
     case 'LRD': return r'L$';
     case 'LSL': return 'L';
-    case 'LYD': return 'ل.د';
-    case 'MAD': return 'د.م.';
+    case 'LYD': return 'Ù„.Ø¯';
+    case 'MAD': return 'Ø¯.Ù….';
     case 'MDL': return 'L';
     case 'MGA': return 'Ar';
-    case 'MKD': return 'ден';
+    case 'MKD': return 'Ð´ÐµÐ½';
     case 'MMK': return 'K';
-    case 'MNT': return '₮';
+    case 'MNT': return 'â‚®';
     case 'MOP': return r'MOP$';
     case 'MRU': return 'UM';
-    case 'MUR': return '₨';
+    case 'MUR': return 'â‚¨';
     case 'MVR': return 'Rf';
     case 'MWK': return 'MK';
     case 'MXN': return r'MX$';
     case 'MYR': return 'RM';
     case 'MZN': return 'MT';
     case 'NAD': return r'N$';
-    case 'NGN': return '₦';
+    case 'NGN': return 'â‚¦';
     case 'NIO': return r'C$';
     case 'NOK': return 'kr';
-    case 'NPR': return 'रू';
+    case 'NPR': return 'à¤°à¥‚';
     case 'NZD': return r'NZ$';
-    case 'OMR': return 'ر.ع.';
+    case 'OMR': return 'Ø±.Ø¹.';
     case 'PAB': return 'B/.';
     case 'PEN': return 'S/';
     case 'PGK': return 'K';
-    case 'PHP': return '₱';
-    case 'PKR': return '₨';
-    case 'PLN': return 'zł';
-    case 'PYG': return '₲';
-    case 'QAR': return 'ر.ق';
+    case 'PHP': return 'â‚±';
+    case 'PKR': return 'â‚¨';
+    case 'PLN': return 'zÅ‚';
+    case 'PYG': return 'â‚²';
+    case 'QAR': return 'Ø±.Ù‚';
     case 'RON': return 'lei';
-    case 'RSD': return 'дин.';
-    case 'RUB': return '₽';
+    case 'RSD': return 'Ð´Ð¸Ð½.';
+    case 'RUB': return 'â‚½';
     case 'RWF': return 'FRw';
-    case 'SAR': return 'ر.س';
+    case 'SAR': return 'Ø±.Ø³';
     case 'SBD': return r'SI$';
-    case 'SCR': return '₨';
-    case 'SDG': return 'ج.س.';
+    case 'SCR': return 'â‚¨';
+    case 'SDG': return 'Ø¬.Ø³.';
     case 'SEK': return 'kr';
     case 'SGD': return r'S$';
-    case 'SHP': return '£';
+    case 'SHP': return 'Â£';
     case 'SLE': return 'Le';
     case 'SOS': return 'Sh';
     case 'SRD': return r'SR$';
-    case 'SSP': return '£';
+    case 'SSP': return 'Â£';
     case 'STN': return 'Db';
-    case 'SYP': return '£';
+    case 'SYP': return 'Â£';
     case 'SZL': return 'L';
-    case 'THB': return '฿';
-    case 'TJS': return 'ЅМ';
+    case 'THB': return 'à¸¿';
+    case 'TJS': return 'Ð…Ðœ';
     case 'TMT': return 'm';
-    case 'TND': return 'د.ت';
+    case 'TND': return 'Ø¯.Øª';
     case 'TOP': return r'T$';
-    case 'TRY': return '₺';
+    case 'TRY': return 'â‚º';
     case 'TTD': return r'TT$';
     case 'TWD': return r'NT$';
     case 'TZS': return 'TSh';
-    case 'UAH': return '₴';
+    case 'UAH': return 'â‚´';
     case 'UGX': return 'USh';
     case 'USD': return r'$';
     case 'UYU': return r'$U';
-    case 'UZS': return 'soʻm';
+    case 'UZS': return 'soÊ»m';
     case 'VES': return 'Bs.';
-    case 'VND': return '₫';
+    case 'VND': return 'â‚«';
     case 'VUV': return 'VT';
     case 'WST': return r'WS$';
     case 'XAF': return 'FCFA';
     case 'XCD': return r'EC$';
     case 'XOF': return 'CFA';
     case 'XPF': return 'CFP';
-    case 'YER': return '﷼';
+    case 'YER': return 'ï·¼';
     case 'ZAR': return 'R';
     case 'ZMW': return 'ZK';
     case 'ZWL': return r'Z$';
@@ -299,7 +299,7 @@ Map<String, dynamic> suggestedTaxForCountry(String country) {
     'Comoros': ['VAT', 10.0],
     'Democratic Republic of the Congo': ['VAT', 16.0],
     'Republic of the Congo': ['VAT', 18.9],
-    'Côte d’Ivoire': ['VAT', 18.0],
+    'CÃ´te dâ€™Ivoire': ['VAT', 18.0],
     'Djibouti': ['VAT', 10.0],
     'Egypt': ['VAT', 14.0],
     'Equatorial Guinea': ['VAT', 15.0],
@@ -326,7 +326,7 @@ Map<String, dynamic> suggestedTaxForCountry(String country) {
     'Niger': ['VAT', 19.0],
     'Nigeria': ['VAT', 7.5],
     'Rwanda': ['VAT', 18.0],
-    'São Tomé and Príncipe': ['VAT', 15.0],
+    'SÃ£o TomÃ© and PrÃ­ncipe': ['VAT', 15.0],
     'Senegal': ['VAT', 18.0],
     'Seychelles': ['VAT', 15.0],
     'Sierra Leone': ['GST', 15.0],
@@ -481,24 +481,89 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email and password.'),
-        ),
-      );
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Please enter your email and password.',
+                    style: TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       return;
     }
 
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
         .hasMatch(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid email address.'),
-        ),
-      );
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Please enter a valid email address.',
+                    style: TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       return;
     }
-
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -537,9 +602,44 @@ class _LoginScreenState extends State<LoginScreen> {
           message = 'Unable to sign in. Please try again.';
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
     }
   }
 
@@ -742,6 +842,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController confirmPasswordController =
   TextEditingController();
 
+  bool _isPasswordVisible = false;
+  bool _isRegistering = false;
+  bool _isConfirmPasswordVisible = false;
 
   Future<void> _register() async {
     final email = emailController.text.trim();
@@ -749,47 +852,185 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final confirmPassword = confirmPasswordController.text;
     final fullName = fullNameController.text.trim();
 
+    if (_isRegistering) return;
+
     if (fullName.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please complete all fields.'),
-        ),
-      );
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Please enter your full name and complete all fields',
+                    style: TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       return;
     }
+
 
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
         .hasMatch(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid email address.'),
-        ),
-      );
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Please enter a valid email address.',
+                    style: TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
       return;
     }
 
+
     if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password must be at least 6 characters.'),
-        ),
-      );
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Password must be at least 6 characters.',
+                    style: TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Passwords do not match.'),
-        ),
-      );
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Passwords do not match. Please try again.',
+                    style: TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       return;
     }
 
-
+    if (!mounted) return;
+    setState(() => _isRegistering = true);
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -830,10 +1071,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
         default:
           message = 'Unable to create your account. Please try again.';
       }
+      final messenger = ScaffoldMessenger.of(context);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: const TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+    } finally {
+      if (mounted) {
+        setState(() => _isRegistering = false);
+      }
     }
   }
 
@@ -859,22 +1138,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _FieldLabel('Password'),
         TextField(
           controller: passwordController,
-          obscureText: true,
-          decoration: _inputDecoration('Create a password'),
+          obscureText: !_isPasswordVisible,
+          decoration: _inputDecoration('Create a password').copyWith(
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+              icon: Icon(
+                _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+              ),
+            ),
+          ),
         ),
         const SizedBox(height: 18),
         _FieldLabel('Confirm Password'),
         TextField(
           controller: confirmPasswordController,
-          obscureText: true,
-          decoration: _inputDecoration('Confirm your password'),
+          obscureText: !_isConfirmPasswordVisible,
+          decoration: _inputDecoration('Confirm your password').copyWith(
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() {
+                  _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                });
+              },
+              icon: Icon(
+                _isConfirmPasswordVisible
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+              ),
+            ),
+          ),
         ),
 
         const SizedBox(height: 28),
 
         _PrimaryButton(
-          text: 'Create Account',
-          onPressed: _register,
+          text: _isRegistering ? 'Creating Account...' : 'Create Account',
+          onPressed: _isRegistering ? null : _register,
+          isLoading: _isRegistering,
         ),
         Center(
           child: TextButton(
@@ -906,32 +1210,80 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _resetPassword() async {
     final email = emailController.text.trim();
 
+    void showMessage(String message, {required bool isSuccess}) {
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  isSuccess ? Icons.check_circle : Icons.error,
+                  color: isSuccess
+                      ? const Color(0xFF2E7D32)
+                      : const Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: TextStyle(
+                      color: isSuccess
+                          ? const Color(0xFF2E7D32)
+                          : const Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: isSuccess
+                ? const Color(0xFFE8F5E9)
+                : const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isSuccess
+                    ? const Color(0xFFC8E6C9)
+                    : const Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+    }
+
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email address.'),
-        ),
+      showMessage(
+        'Please enter your email address.',
+        isSuccess: false,
       );
       return;
     }
 
-    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-        .hasMatch(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid email address.'),
-        ),
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      showMessage(
+        'Please enter a valid email address.',
+        isSuccess: false,
       );
       return;
     }
-
 
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(
-        email: email,
-      );
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
       if (!mounted) return;
+
+      showMessage(
+        'Password reset link sent! Please check your email.',
+        isSuccess: true,
+      );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
 
@@ -944,13 +1296,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         case 'invalid-email':
           message = 'Please enter a valid email address.';
           break;
+        case 'too-many-requests':
+          message = 'Too many attempts. Please try again later.';
+          break;
         default:
           message = 'Unable to send the reset link. Please try again.';
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
+      showMessage(message, isSuccess: false);
     }
   }
 
@@ -4399,14 +4752,46 @@ class _EditClientScreenState extends State<EditClientScreen> {
       return;
     }
 
-    if (email.isNotEmpty &&
-        !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-            .hasMatch(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid email address.'),
-        ),
-      );
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
+        .hasMatch(email)) {
+      final messenger = ScaffoldMessenger.of(context);
+
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.error,
+                  color: Color(0xFFC62828),
+                  size: 22,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Please enter a valid email address.',
+                    style: TextStyle(
+                      color: Color(0xFFC62828),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: const Color(0xFFFFEBEE),
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: const BorderSide(
+                color: Color(0xFFFFCDD2),
+              ),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
       return;
     }
 
@@ -4817,8 +5202,7 @@ class NotificationsScreen extends StatefulWidget {
       _NotificationsScreenState();
 }
 
-class _NotificationsScreenState
-    extends State<NotificationsScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen> {
   List<Invoice> notificationInvoices = [];
 
   @override
@@ -4841,19 +5225,70 @@ class _NotificationsScreenState
         .get();
 
     final loadedInvoices = snapshot.docs.map((doc) {
-      return Invoice.fromMap(
-        doc.data(),
-        id: doc.id,
-      );
+      return Invoice.fromMap(doc.data(), id: doc.id);
     }).toList();
 
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     setState(() {
       notificationInvoices = loadedInvoices;
     });
+  }
+
+  bool _isOverdue(Invoice invoice) {
+    if (invoice.status == 'Paid') return false;
+
+    final parts = invoice.dueDate.split('/');
+    if (parts.length != 3) return false;
+
+    try {
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+
+      final dueDate = DateTime(year, month, day);
+
+      // Reject invalid dates instead of allowing DateTime to normalise them.
+      if (dueDate.day != day ||
+          dueDate.month != month ||
+          dueDate.year != year) {
+        return false;
+      }
+
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      return dueDate.isBefore(today);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _openInvoice(Invoice invoice) async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => InvoiceDetailsScreen(
+          invoiceId: invoice.id,
+          invoice: invoice,
+          invoiceNumber: invoice.invoiceNumber,
+          currencyCode: invoice.currencyCode,
+          clientName: invoice.client,
+          clientId: invoice.clientId,
+          status: invoice.status,
+          amount:
+          '${currencySymbolFor(invoice.currencyCode)}${invoice.total.toStringAsFixed(2)}',
+          vat: invoice.vat,
+          items: invoice.items.map((item) => item.toMap()).toList(),
+          issueDate: invoice.issueDate,
+          dueDate: invoice.dueDate,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    await _loadNotifications();
   }
 
   @override
@@ -4865,19 +5300,20 @@ class _NotificationsScreenState
         notifications.add(
           _InfoCard(
             icon: Icons.receipt_long_outlined,
-            title: 'Invoice payment received',
+            title: 'Invoice marked as paid',
             subtitle:
-            '${invoice.client} paid invoice ${invoice.invoiceNumber}.',
+            'Invoice ${invoice.invoiceNumber} for ${invoice.client} is marked as paid.',
+            onTap: () => _openInvoice(invoice),
           ),
         );
-      } else if (invoice.status == 'Overdue') {
+      } else if (_isOverdue(invoice)) {
         notifications.add(
-          _InfoCard(
-            icon: Icons.warning_amber_outlined,
-            title: 'Invoice overdue',
-            subtitle:
-            'Invoice ${invoice.invoiceNumber} is overdue.',
-          ),
+        _InfoCard(
+        icon: Icons.warning_amber_outlined,
+    title: 'Invoice overdue',
+    subtitle: 'Invoice ${invoice.invoiceNumber} is overdue.',
+    onTap: () => _openInvoice(invoice),
+    ),
         );
       } else if (invoice.status == 'Pending') {
         notifications.add(
@@ -4885,7 +5321,8 @@ class _NotificationsScreenState
             icon: Icons.pending_outlined,
             title: 'Invoice pending',
             subtitle:
-            'Invoice ${invoice.invoiceNumber} is still pending.',
+            'Invoice ${invoice.invoiceNumber} for ${invoice.client} is awaiting payment.',
+            onTap: () => _openInvoice(invoice),
           ),
         );
       }
@@ -4895,20 +5332,15 @@ class _NotificationsScreenState
       title: 'Notifications',
       child: notifications.isEmpty
           ? const Center(
-        child: Text(
-          'No notifications yet',
-          style: TextStyle(
-            color: Colors.grey,
-          ),
-        ),
-      )
-          : Column(
-        children: notifications,
-      ),
+              child: Text(
+                'No notifications yet',
+                style: TextStyle(color: Colors.grey),
+              ),
+            )
+          : Column(children: notifications),
     );
   }
 }
-
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
 
@@ -5818,7 +6250,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
     {'code': 'EUR', 'name': 'Euro'},
     {'code': 'FJD', 'name': 'Fiji Dollar'},
     {'code': 'FKP', 'name': 'Falkland Islands Pound'},
-    {'code': 'GBP', 'name': 'British Pound (£)'},
+    {'code': 'GBP', 'name': 'British Pound (Â£)'},
     {'code': 'GEL', 'name': 'Georgian Lari'},
     {'code': 'GHS', 'name': 'Ghanaian Cedi'},
     {'code': 'GIP', 'name': 'Gibraltar Pound'},
@@ -5879,7 +6311,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
     {'code': 'PEN', 'name': 'Peruvian Sol'},
     {'code': 'PGK', 'name': 'Papua New Guinea Kina'},
     {'code': 'PHP', 'name': 'Philippine Peso'},
-    {'code': 'PKR', 'name': 'Pakistani Rupee (₨)'},
+    {'code': 'PKR', 'name': 'Pakistani Rupee (â‚¨)'},
     {'code': 'PLN', 'name': 'Polish Zloty'},
     {'code': 'PYG', 'name': 'Paraguayan Guarani'},
     {'code': 'QAR', 'name': 'Qatari Riyal'},
@@ -6504,10 +6936,12 @@ class _PageHeader extends StatelessWidget {
 class _PrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
+  final bool isLoading;
 
   const _PrimaryButton({
     required this.text,
     required this.onPressed,
+    this.isLoading = false,
   });
 
   @override
@@ -6526,7 +6960,16 @@ class _PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(11),
           ),
         ),
-        child: Text(
+        child: isLoading
+            ? const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: Colors.white,
+          ),
+        )
+            : Text(
           text,
           style: const TextStyle(
             fontSize: 14,
@@ -6826,58 +7269,70 @@ class _InfoCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   const _InfoCard({
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(
-        bottom: 12,
-      ),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Material(
         color: Colors.white,
-        border: Border.all(
-          color: const Color(0xFFE1E5EA),
-        ),
-        borderRadius:
-        BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: const Color(0xFF2864E8),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+        borderRadius: BorderRadius.circular(10),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: const Color(0xFFE1E5EA),
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
+                Icon(
+                  icon,
+                  color: const Color(0xFF2864E8),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF667085),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
+                if (onTap != null)
+                  const Icon(
+                    Icons.chevron_right,
                     color: Color(0xFF667085),
                   ),
-                ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -7734,7 +8189,7 @@ class _TaxSettingsScreenState
                 Text(
                   'Suggested for ${businessCountry ?? 'your country'}: '
                       '$suggestedTaxName'
-                      '${suggestedTaxRate != null ? ' (${suggestedTaxRate!.toStringAsFixed(1)}%)' : ' — confirm your rate'}',
+                      '${suggestedTaxRate != null ? ' (${suggestedTaxRate!.toStringAsFixed(1)}%)' : ' â€” confirm your rate'}',
                   style: const TextStyle(
                     color: Colors.black54,
                     fontSize: 13,
@@ -8936,3 +9391,5 @@ class _CountryPickerDialogState
     );
   }
 }
+
+
