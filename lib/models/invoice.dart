@@ -63,7 +63,18 @@ class Invoice {
 
     return Invoice(
       id: id,
-      invoiceNumber: map['invoiceNumber'] ?? '',
+      invoiceNumber: (() {
+        final value = map['invoiceNumber']?.toString() ?? '';
+        final match = RegExp(r'^NEW-(\d+)$', caseSensitive: false)
+            .firstMatch(value);
+
+        if (match != null) {
+          final number = int.parse(match.group(1)!);
+          return 'INV-${number.toString().padLeft(4, '0')}';
+        }
+
+        return value;
+      })(),
       currencyCode: map['currencyCode']?.toString() ?? 'GBP',
       client: map['client'] ?? '',
       clientId: map['clientId']?.toString(),

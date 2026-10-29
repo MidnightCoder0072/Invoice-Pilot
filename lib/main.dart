@@ -24,21 +24,21 @@ String selectedCurrencyCode = 'GBP';
 
 String currencySymbolFor(String code) {
   switch (code) {
-    case 'AED': return 'Ø¯.Ø¥';
-    case 'AFN': return 'Ø‹';
+    case 'AED': return 'د.إ';
+    case 'AFN': return '؋';
     case 'ALL': return 'L';
-    case 'AMD': return 'Ö';
-    case 'ANG': return 'Æ’';
+    case 'AMD': return '֏';
+    case 'ANG': return 'ƒ';
     case 'AOA': return 'Kz';
     case 'ARS': return r'$';
     case 'AUD': return r'A$';
-    case 'AWG': return 'Æ’';
-    case 'AZN': return 'â‚¼';
+    case 'AWG': return 'ƒ';
+    case 'AZN': return '₼';
     case 'BAM': return 'KM';
     case 'BBD': return r'Bds$';
-    case 'BDT': return 'à§³';
-    case 'BGN': return 'Ð»Ð²';
-    case 'BHD': return 'Ø¯.Ø¨';
+    case 'BDT': return '৳';
+    case 'BGN': return 'лв';
+    case 'BHD': return 'د.ب';
     case 'BIF': return 'FBu';
     case 'BMD': return r'BD$';
     case 'BND': return r'B$';
@@ -53,26 +53,26 @@ String currencySymbolFor(String code) {
     case 'CDF': return 'FC';
     case 'CHF': return 'CHF';
     case 'CLP': return r'CL$';
-    case 'CNY': return 'Â¥';
+    case 'CNY': return '¥';
     case 'COP': return r'COL$';
-    case 'CRC': return 'â‚¡';
-    case 'CUP': return 'â‚±';
+    case 'CRC': return '₡';
+    case 'CUP': return '₱';
     case 'CVE': return r'CV$';
-    case 'CZK': return 'KÄ';
+    case 'CZK': return 'Kč';
     case 'DJF': return 'Fdj';
     case 'DKK': return 'kr';
     case 'DOP': return r'RD$';
-    case 'DZD': return 'Ø¯Ø¬';
-    case 'EGP': return 'EÂ£';
+    case 'DZD': return 'دج';
+    case 'EGP': return 'E£';
     case 'ERN': return 'Nfk';
     case 'ETB': return 'Br';
-    case 'EUR': return 'â‚¬';
+    case 'EUR': return '€';
     case 'FJD': return r'FJ$';
-    case 'FKP': return 'Â£';
-    case 'GBP': return 'Â£';
-    case 'GEL': return 'â‚¾';
-    case 'GHS': return 'â‚µ';
-    case 'GIP': return 'Â£';
+    case 'FKP': return '£';
+    case 'GBP': return '£';
+    case 'GEL': return '₾';
+    case 'GHS': return '₵';
+    case 'GIP': return '£';
     case 'GMD': return 'D';
     case 'GNF': return 'FG';
     case 'GTQ': return 'Q';
@@ -82,106 +82,105 @@ String currencySymbolFor(String code) {
     case 'HTG': return 'G';
     case 'HUF': return 'Ft';
     case 'IDR': return 'Rp';
-    case 'ILS': return 'â‚ª';
-    case 'INR': return 'â‚¹';
-    case 'IQD': return 'Ø¹.Ø¯';
-    case 'IRR': return 'ï·¼';
+    case 'ILS': return '₪';
+    case 'INR': return '₹';
+    case 'IQD': return 'د.ع';
+    case 'IRR': return '﷼';
     case 'ISK': return 'kr';
     case 'JMD': return r'J$';
-    case 'JOD': return 'Ø¯.Ø§';
-    case 'JPY': return 'Â¥';
+    case 'JOD': return 'د.ا';
+    case 'JPY': return '¥';
     case 'KES': return 'KSh';
-    case 'KGS': return 'ÑÐ¾Ð¼';
-    case 'KHR': return 'áŸ›';
+    case 'KGS': return 'сом';
+    case 'KHR': return '៛';
     case 'KMF': return 'CF';
-    case 'KPW': return 'â‚©';
-    case 'KRW': return 'â‚©';
-    case 'KWD': return 'Ø¯.Ùƒ';
+    case 'KPW': return '₩';
+    case 'KRW': return '₩';
+    case 'KWD': return 'د.ك';
     case 'KYD': return r'CI$';
-    case 'KZT': return 'â‚¸';
-    case 'LAK': return 'â‚­';
-    case 'LBP': return 'Ù„.Ù„';
-    case 'LKR': return 'à¶»à·”';
+    case 'KZT': return '₸';
+    case 'LAK': return '₭';
+    case 'LBP': return 'ل.ل';
+    case 'LKR': return 'රු';
     case 'LRD': return r'L$';
     case 'LSL': return 'L';
-    case 'LYD': return 'Ù„.Ø¯';
-    case 'MAD': return 'Ø¯.Ù….';
+    case 'LYD': return 'ل.د';
+    case 'MAD': return 'د.م.';
     case 'MDL': return 'L';
     case 'MGA': return 'Ar';
-    case 'MKD': return 'Ð´ÐµÐ½';
+    case 'MKD': return 'ден';
     case 'MMK': return 'K';
-    case 'MNT': return 'â‚®';
+    case 'MNT': return '₮';
     case 'MOP': return r'MOP$';
     case 'MRU': return 'UM';
-    case 'MUR': return 'â‚¨';
+    case 'MUR': return '₨';
     case 'MVR': return 'Rf';
     case 'MWK': return 'MK';
     case 'MXN': return r'MX$';
     case 'MYR': return 'RM';
     case 'MZN': return 'MT';
     case 'NAD': return r'N$';
-    case 'NGN': return 'â‚¦';
+    case 'NGN': return '₦';
     case 'NIO': return r'C$';
     case 'NOK': return 'kr';
-    case 'NPR': return 'à¤°à¥‚';
+    case 'NPR': return 'रू';
     case 'NZD': return r'NZ$';
-    case 'OMR': return 'Ø±.Ø¹.';
+    case 'OMR': return 'ر.ع.';
     case 'PAB': return 'B/.';
     case 'PEN': return 'S/';
     case 'PGK': return 'K';
-    case 'PHP': return 'â‚±';
-    case 'PKR': return 'â‚¨';
-    case 'PLN': return 'zÅ‚';
-    case 'PYG': return 'â‚²';
-    case 'QAR': return 'Ø±.Ù‚';
+    case 'PHP': return '₱';
+    case 'PKR': return '₨';
+    case 'PLN': return 'zł';
+    case 'PYG': return '₲';
+    case 'QAR': return 'ر.ق';
     case 'RON': return 'lei';
-    case 'RSD': return 'Ð´Ð¸Ð½.';
-    case 'RUB': return 'â‚½';
+    case 'RSD': return 'дин.';
+    case 'RUB': return '₽';
     case 'RWF': return 'FRw';
-    case 'SAR': return 'Ø±.Ø³';
+    case 'SAR': return 'ر.س';
     case 'SBD': return r'SI$';
-    case 'SCR': return 'â‚¨';
-    case 'SDG': return 'Ø¬.Ø³.';
+    case 'SCR': return '₨';
+    case 'SDG': return 'ج.س.';
     case 'SEK': return 'kr';
     case 'SGD': return r'S$';
-    case 'SHP': return 'Â£';
+    case 'SHP': return '£';
     case 'SLE': return 'Le';
     case 'SOS': return 'Sh';
     case 'SRD': return r'SR$';
-    case 'SSP': return 'Â£';
+    case 'SSP': return '£';
     case 'STN': return 'Db';
-    case 'SYP': return 'Â£';
+    case 'SYP': return '£';
     case 'SZL': return 'L';
-    case 'THB': return 'à¸¿';
-    case 'TJS': return 'Ð…Ðœ';
+    case 'THB': return '฿';
+    case 'TJS': return 'ЅМ';
     case 'TMT': return 'm';
-    case 'TND': return 'Ø¯.Øª';
+    case 'TND': return 'د.ت';
     case 'TOP': return r'T$';
-    case 'TRY': return 'â‚º';
+    case 'TRY': return '₺';
     case 'TTD': return r'TT$';
     case 'TWD': return r'NT$';
     case 'TZS': return 'TSh';
-    case 'UAH': return 'â‚´';
+    case 'UAH': return '₴';
     case 'UGX': return 'USh';
     case 'USD': return r'$';
     case 'UYU': return r'$U';
-    case 'UZS': return 'soÊ»m';
+    case 'UZS': return 'soʻm';
     case 'VES': return 'Bs.';
-    case 'VND': return 'â‚«';
+    case 'VND': return '₫';
     case 'VUV': return 'VT';
     case 'WST': return r'WS$';
     case 'XAF': return 'FCFA';
     case 'XCD': return r'EC$';
     case 'XOF': return 'CFA';
     case 'XPF': return 'CFP';
-    case 'YER': return 'ï·¼';
+    case 'YER': return '﷼';
     case 'ZAR': return 'R';
     case 'ZMW': return 'ZK';
     case 'ZWL': return r'Z$';
     default: return code;
   }
 }
-
 
 String get currencySymbol => currencySymbolFor(selectedCurrencyCode);
 
@@ -6250,7 +6249,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
     {'code': 'EUR', 'name': 'Euro'},
     {'code': 'FJD', 'name': 'Fiji Dollar'},
     {'code': 'FKP', 'name': 'Falkland Islands Pound'},
-    {'code': 'GBP', 'name': 'British Pound (Â£)'},
+    {'code': 'GBP', 'name': 'British Pound (£)'},
     {'code': 'GEL', 'name': 'Georgian Lari'},
     {'code': 'GHS', 'name': 'Ghanaian Cedi'},
     {'code': 'GIP', 'name': 'Gibraltar Pound'},
@@ -6311,7 +6310,7 @@ class _CurrencyScreenState extends State<CurrencyScreen> {
     {'code': 'PEN', 'name': 'Peruvian Sol'},
     {'code': 'PGK', 'name': 'Papua New Guinea Kina'},
     {'code': 'PHP', 'name': 'Philippine Peso'},
-    {'code': 'PKR', 'name': 'Pakistani Rupee (â‚¨)'},
+    {'code': 'PKR', 'name': 'Pakistani Rupee (₨)'},
     {'code': 'PLN', 'name': 'Polish Zloty'},
     {'code': 'PYG', 'name': 'Paraguayan Guarani'},
     {'code': 'QAR', 'name': 'Qatari Riyal'},
